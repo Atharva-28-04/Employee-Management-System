@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Table 1: Users
+model User {
+  id              Int       @id @default(autoincrement())
+  name            String?   @db.VarChar(100)
+  email           String    @unique @db.VarChar(100)
+  password        String    @db.VarChar(255)
+  role            String?   @default("user") @db.VarChar(20)
+  employeeProfile Employee?
+
+  @@map("User")
+}
+
+// Table 2: Departments
+model Department {
+  id              Int        @id @default(autoincrement())
+  department_name String     @unique @db.VarChar(100)
+  profiles        Employee[]
+}
+
+// Table 3: Employee Profile
+model Employee {
+  id      Int @id @default(autoincrement())
+  user_id Int @unique
+
+  // 🌟 MOVED HERE: The name fields are finally in the correct table!
+  first_name String?
+  last_name  String?
+
+  department_id Int?
+  phone         String?   @db.VarChar(20)
+  address       String?
+  designation   String?   @db.VarChar(100)
+  salary        Decimal?  @db.Decimal(10, 2)
+  created_at    DateTime? @default(now())
+
+  user              User               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  department        Department?        @relation(fields: [department_id], references: [id])
+  images            EmployeeDocument[]
+  skills            EmployeeSkill[]
+  leaveBalances     LeaveBalance[]
+  leaveApplications LeaveApplication[]
+
+  @@map("Employee")
+}
+
+// Table 4: Employee Images
+model EmployeeDocument {
+  id          Int    @id @default(autoincrement())
+  employee_id Int
+  image_url   String
+
+  profile Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  @@map("EmployeeDocument")
+}
+
+// Table 5: Skills
+model Skill {
+  id         Int             @id @default(autoincrement())
+  skill_name String          @db.VarChar(100)
+  employees  EmployeeSkill[]
+
+  @@map("Skill")
+}
+
+// Table 6: Employee Skills
+model EmployeeSkill {
+  id          Int @id @default(autoincrement())
+  // (Removed the accidental name fields from here!)
+  employee_id Int
+  skill_id    Int
+
+  profile Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  skill   Skill    @relation(fields: [skill_id], references: [id], onDelete: Cascade)
+
+  @@map("EmployeeSkill")
+}
+
+// ==========================================
+// LEAVE MANAGEMENT SYSTEM
+// ==========================================
+
+model LeaveType {
+  id         Int    @id @default(autoincrement())
+  leave_name String @db.VarChar(100)
+  total_days Int
+
+  balances     LeaveBalance[]
+  applications LeaveApplication[]
+
+  @@map("LeaveType")
+}
+
+model LeaveBalance {
+  id             Int @id @default(autoincrement())
+  employee_id    Int
+  leave_type_id  Int
+  available_days Int
+
+  employee  Employee  @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  leaveType LeaveType @relation(fields: [leave_type_id], references: [id], onDelete: Cascade)
+
+  @@unique([employee_id, leave_type_id])
+  @@map("LeaveBalance")
+}
+
+model LeaveApplication {
+  id            Int @id @default(autoincrement())
+  employee_id   Int
+  leave_type_id Int
+
+  from_date DateTime
+  to_date   DateTime
+
+  total_days Int
+  reason     String
+
+  status String @default("Pending")
+
+  created_at DateTime @default(now())
+
+  employee  Employee  @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  leaveType LeaveType @relation(fields: [leave_type_id], references: [id])
+
+  approvals ApprovalHistory[]
+
+  @@map("LeaveApplication")
+}
+
+model ApprovalHistory {
+  id          Int @id @default(autoincrement())
+  leave_id    Int
+  approved_by Int
+
+  action  String  @db.VarChar(50)
+  remarks String?
+
+  created_at DateTime @default(now())
+
+  leave LeaveApplication @relation(fields: [leave_id], references: [id], onDelete: Cascade)
+
+  @@map("ApprovalHistory")
+}
