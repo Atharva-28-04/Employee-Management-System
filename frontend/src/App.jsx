@@ -13,7 +13,7 @@ import DepartmentMaster from './pages/DepartmentMaster.jsx';
 import SkillsMaster from './pages/SkillsMaster.jsx';
 import AssetManagement from './pages/AssetManagement';
 import AuditLogs from './pages/AuditLogs';
-
+import Reports from './pages/Reports';
 
 
 // Leave Management
@@ -109,7 +109,10 @@ return ( <Router> <Routes>
           path="/hr-leaves"
           element={<HRLeaves />}
         />
-
+<Route
+  path="/reports"
+  element={<Reports />}
+/>
       </Route>
     </Route>
 

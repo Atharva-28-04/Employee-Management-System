@@ -1,6 +1,11 @@
 import express from 'express';
 import prisma from '../config/prismaClient.js';
 import bcrypt from 'bcryptjs';
+import {
+  validateEmployee
+} from '../middleware/validationMiddleware.js';
+
+
 
 const router = express.Router();
 
@@ -8,7 +13,10 @@ const router = express.Router();
 // CREATE Employee with Skill mappings
 // POST /api/employees 
 // ==========================================
-router.post('/', async (req, res) => {
+router.post(
+  '/',
+  validateEmployee,
+  async (req, res) => {
   try {
     const { firstName, lastName, email, phone, departmentId, designation, salary, skills, address } = req.body;
 

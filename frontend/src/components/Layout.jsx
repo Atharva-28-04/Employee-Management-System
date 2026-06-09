@@ -73,6 +73,14 @@ useEffect(() => {
 
   ...(user?.role === 'hr'
     ? [
+
+          {
+  name: 'Employee List',
+  href: '/employees',
+  icon: Users
+},
+
+
         {
           name: 'Employee Registry',
           href: '/register',
@@ -99,7 +107,11 @@ useEffect(() => {
   icon: Briefcase
 },
 
-
+{
+  name: 'Reports',
+  href: '/reports',
+  icon: Briefcase
+},
 
         {
           name: 'HR Approvals',

@@ -3,7 +3,7 @@ import cors from 'cors';
 import 'dotenv/config'; // Handles environment variables automatically
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+import errorHandler from './middleware/errorHandler.js';
 
 // Route Imports
 import authRoutes from './routes/authRoutes.js';
@@ -50,7 +50,7 @@ app.use('/api/reports', reportRoutes);
 
 
 
-
+app.use(errorHandler);
 
 
 // Start the server

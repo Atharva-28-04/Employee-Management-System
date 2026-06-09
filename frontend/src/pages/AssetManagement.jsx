@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 function AssetManagement() {
   const [assets, setAssets] = useState([]);
+  const [employeeId, setEmployeeId] = useState('');
 
   const [formData, setFormData] = useState({
     asset_code: '',
@@ -62,7 +63,47 @@ useEffect(() => {
       console.error(error);
     }
   };
+const allocateAsset = async (assetId) => {
+  try {
+    await fetch(
+      'http://localhost:5000/api/assets/allocate',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          assetId,
+          employeeId,
+          allocatedBy: 1
+        })
+      }
+    );
 
+    fetchAssets();
+
+    alert('Asset Allocated');
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const returnAsset = async (allocationId) => {
+  try {
+    await fetch(
+      `http://localhost:5000/api/assets/return/${allocationId}`,
+      {
+        method: 'PUT'
+      }
+    );
+
+    fetchAssets();
+
+    alert('Asset Returned');
+  } catch (error) {
+    console.error(error);
+  }
+};
   return (
     <div className="space-y-8">
 
@@ -161,7 +202,38 @@ useEffect(() => {
         </form>
 
       </div>
+<div className="grid md:grid-cols-3 gap-6">
 
+  <div className="bg-blue-600 text-white p-6 rounded-2xl">
+    <h3 className="text-lg">Total Assets</h3>
+    <p className="text-4xl font-bold">
+      {assets.length}
+    </p>
+  </div>
+
+  <div className="bg-yellow-500 text-white p-6 rounded-2xl">
+    <h3 className="text-lg">Allocated</h3>
+    <p className="text-4xl font-bold">
+      {
+        assets.filter(
+          (a) => a.status === 'Allocated'
+        ).length
+      }
+    </p>
+  </div>
+
+  <div className="bg-green-600 text-white p-6 rounded-2xl">
+    <h3 className="text-lg">Available</h3>
+    <p className="text-4xl font-bold">
+      {
+        assets.filter(
+          (a) => a.status === 'Available'
+        ).length
+      }
+    </p>
+  </div>
+
+</div>
       {/* ASSET TABLE */}
       <div className="bg-white rounded-2xl shadow p-6">
 
@@ -178,6 +250,7 @@ useEffect(() => {
               <th className="text-left py-3">Type</th>
               <th className="text-left py-3">Cost</th>
               <th className="text-left py-3">Status</th>
+                <th className="text-left py-3">Actions</th>
             </tr>
           </thead>
 
@@ -210,7 +283,39 @@ useEffect(() => {
                         ? 'bg-yellow-100 text-yellow-700'
                         : 'bg-green-100 text-green-700'
                     }`}
-                  >
+                  ><td className="py-3">
+
+  <input
+    type="number"
+    placeholder="Employee ID"
+    value={employeeId}
+    onChange={(e) =>
+      setEmployeeId(e.target.value)
+    }
+    className="border px-2 py-1 rounded mr-2 w-28"
+  />
+
+  {asset.status === 'Available' ? (
+    <button
+      onClick={() =>
+        allocateAsset(asset.id)
+      }
+      className="bg-indigo-600 text-white px-3 py-1 rounded"
+    >
+      Allocate
+    </button>
+  ) : (
+    <button
+      onClick={() =>
+        returnAsset(asset.id)
+      }
+      className="bg-red-600 text-white px-3 py-1 rounded"
+    >
+      Return
+    </button>
+  )}
+
+</td>
                     {asset.status}
                   </span>
                 </td>

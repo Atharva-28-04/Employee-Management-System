@@ -7,6 +7,15 @@ const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+const [currentPage, setCurrentPage] = useState(1);
+const [sortOrder, setSortOrder] = useState('asc');
+
+const employeesPerPage = 5;
+
+
+
+
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -61,6 +70,37 @@ const EmployeeList = () => {
       alert(err.message);
     }
   };
+const filteredEmployees = employees
+  .filter((employee) =>
+    employee?.name
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  )
+  .sort((a, b) => {
+    const nameA = a?.name || '';
+    const nameB = b?.name || '';
+
+    return sortOrder === 'asc'
+      ? nameA.localeCompare(nameB)
+      : nameB.localeCompare(nameA);
+  });
+
+const indexOfLastEmployee =
+  currentPage * employeesPerPage;
+
+const indexOfFirstEmployee =
+  indexOfLastEmployee - employeesPerPage;
+
+const currentEmployees =
+  filteredEmployees.slice(
+    indexOfFirstEmployee,
+    indexOfLastEmployee
+  );
+
+const totalPages = Math.ceil(
+  filteredEmployees.length / employeesPerPage
+);
+
 
   if (loading) {
     return (
@@ -84,7 +124,35 @@ const EmployeeList = () => {
         <h2 className="text-2xl font-bold">
           Company Directory
         </h2>
+<div className="flex gap-4 mt-4">
 
+  <input
+    type="text"
+    placeholder="Search Employee..."
+    value={searchTerm}
+    onChange={(e) =>
+      setSearchTerm(e.target.value)
+    }
+    className="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl"
+  />
+
+  <select
+    value={sortOrder}
+    onChange={(e) =>
+      setSortOrder(e.target.value)
+    }
+    className="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl"
+  >
+    <option value="asc">
+      Name A-Z
+    </option>
+
+    <option value="desc">
+      Name Z-A
+    </option>
+  </select>
+
+</div>
         <span className="bg-blue-600/20 text-blue-400 py-1 px-4 rounded-full text-sm">
           {employees.length} Total Staff
         </span>
@@ -110,7 +178,7 @@ const EmployeeList = () => {
                 </td>
               </tr>
             ) : (
-              employees.map((employee) => (
+              currentEmployees.map((employee) => (
                 <tr
                   key={employee.id}
                   className="border-b border-slate-800"
@@ -189,8 +257,40 @@ const EmployeeList = () => {
             )}
           </tbody>
         </table>
+<div className="flex justify-between items-center p-6">
+
+  <button
+    disabled={currentPage === 1}
+    onClick={() =>
+      setCurrentPage(currentPage - 1)
+    }
+    className="bg-blue-600 px-4 py-2 rounded disabled:opacity-50"
+  >
+    Previous
+  </button>
+
+  <span>
+    Page {currentPage} of {totalPages}
+  </span>
+
+  <button
+    disabled={currentPage === totalPages}
+    onClick={() =>
+      setCurrentPage(currentPage + 1)
+    }
+    className="bg-blue-600 px-4 py-2 rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+
+</div>
+
+
+
       </div>
     </div>
+
+    
   );
 };
 
