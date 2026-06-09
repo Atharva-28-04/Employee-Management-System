@@ -11,6 +11,10 @@ import EmployeeList from './pages/EmployeeList.jsx';
 import EmployeeRegistry from './pages/EmployeeRegistry.jsx';
 import DepartmentMaster from './pages/DepartmentMaster.jsx';
 import SkillsMaster from './pages/SkillsMaster.jsx';
+import AssetManagement from './pages/AssetManagement';
+import AuditLogs from './pages/AuditLogs';
+
+
 
 // Leave Management
 import LeaveApplication from './pages/LeaveApplication.jsx';
@@ -48,7 +52,18 @@ return ( <Router> <Routes>
           path="/my-leaves"
           element={<MyLeaves />}
         />
-
+<Route
+  path="/assets"
+  element={<AssetManagement />}
+/>
+     <Route
+  path="/audit-logs"
+  element={<AuditLogs />}
+/>
+     
+     
+     
+     
       </Route>
     </Route>
 <Route

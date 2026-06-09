@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -22,6 +22,31 @@ function Layout() {
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  
+const [notifications, setNotifications] = useState([]);
+const [showNotifications, setShowNotifications] = useState(false);
+
+
+useEffect(() => {
+  const loadNotifications = async () => {
+    try {
+      const response = await fetch(
+        'http://localhost:5000/api/notifications'
+      );
+
+      const data = await response.json();
+
+      setNotifications(
+        Array.isArray(data) ? data : []
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  loadNotifications();
+}, []);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -63,6 +88,19 @@ function Layout() {
           href: '/skills',
           icon: Wrench
         },
+        {
+          name: 'Asset Management',
+           href: '/assets',
+            icon: Briefcase
+          },
+{
+  name: 'Audit Logs',
+  href: '/audit-logs',
+  icon: Briefcase
+},
+
+
+
         {
           name: 'HR Approvals',
           href: '/hr-leaves',
@@ -198,7 +236,61 @@ function Layout() {
 
           <div className="flex items-center gap-4">
 
-            <Bell size={18} />
+           <div className="relative">
+
+  <button
+    onClick={() =>
+      setShowNotifications(!showNotifications)
+    }
+    className="relative"
+  >
+    <Bell size={20} />
+
+    {notifications.length > 0 && (
+      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2">
+        {notifications.length}
+      </span>
+    )}
+  </button>
+
+  {showNotifications && (
+    <div className="absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-2xl border z-50">
+
+      <div className="p-4 border-b">
+        <h3 className="font-bold">
+          Notifications
+        </h3>
+      </div>
+
+      <div className="max-h-80 overflow-y-auto">
+
+        {notifications.length === 0 ? (
+          <div className="p-4 text-gray-500">
+            No Notifications
+          </div>
+        ) : (
+          notifications.map((notification) => (
+            <div
+              key={notification.id}
+              className="p-4 border-b hover:bg-gray-50"
+            >
+              <h4 className="font-semibold">
+                {notification.title}
+              </h4>
+
+              <p className="text-sm text-gray-600">
+                {notification.message}
+              </p>
+            </div>
+          ))
+        )}
+
+      </div>
+
+    </div>
+  )}
+
+</div>
 
             <div className="text-right">
               <p className="font-semibold text-sm">
@@ -223,5 +315,8 @@ function Layout() {
     </div>
   );
 }
+
+
+      
 
 export default Layout;

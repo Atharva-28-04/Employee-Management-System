@@ -36,30 +36,49 @@ function Dashboard() {
   const [leaveData, setLeaveData] = useState([]);
   const [recentLeaves, setRecentLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
+const [assetStats, setAssetStats] = useState({
+  totalAssets: 0,
+  allocatedAssets: 0,
+  availableAssets: 0
+});
 
+const [notificationCount, setNotificationCount] = useState(0);
   const loadDashboard = async () => {
     try {
       const [
-        statsRes,
-        departmentRes,
-        leaveRes,
-        recentRes
-      ] = await Promise.all([
+  statsRes,
+  departmentRes,
+  leaveRes,
+  recentRes,
+  assetRes,
+  notificationRes
+] = await Promise.all([
         fetch('http://localhost:5000/api/dashboard/stats'),
         fetch('http://localhost:5000/api/dashboard/department-chart'),
         fetch('http://localhost:5000/api/dashboard/leave-chart'),
-        fetch('http://localhost:5000/api/dashboard/recent-leaves')
+        fetch('http://localhost:5000/api/dashboard/recent-leaves'),
+        fetch('http://localhost:5000/api/dashboard/asset-stats'),
+        fetch('http://localhost:5000/api/dashboard/notification-count')
+
       ]);
 
       const statsData = await statsRes.json();
       const departmentChartData = await departmentRes.json();
       const leaveChartData = await leaveRes.json();
       const recentLeaveData = await recentRes.json();
+      const assetData = await assetRes.json();
+      const notificationData = await notificationRes.json();
+
+
 
       setStats(statsData);
       setDepartmentData(Array.isArray(departmentChartData) ? departmentChartData : []);
       setLeaveData(Array.isArray(leaveChartData) ? leaveChartData : []);
       setRecentLeaves(Array.isArray(recentLeaveData) ? recentLeaveData : []);
+      setAssetStats(assetData);
+      setNotificationCount(notificationData.unread || 0);
+
+
 
     } catch (error) {
       console.error('Dashboard Error:', error);
@@ -168,7 +187,41 @@ function Dashboard() {
         </div>
 
       </div>
+<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
 
+  <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white p-6 rounded-2xl shadow-lg">
+    <div className="text-3xl mb-3">💻</div>
+    <h3>Total Assets</h3>
+    <p className="text-4xl font-bold mt-3">
+      {assetStats.totalAssets}
+    </p>
+  </div>
+
+  <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-6 rounded-2xl shadow-lg">
+    <div className="text-3xl mb-3">📦</div>
+    <h3>Allocated Assets</h3>
+    <p className="text-4xl font-bold mt-3">
+      {assetStats.allocatedAssets}
+    </p>
+  </div>
+
+  <div className="bg-gradient-to-r from-green-600 to-emerald-500 text-white p-6 rounded-2xl shadow-lg">
+    <div className="text-3xl mb-3">✅</div>
+    <h3>Available Assets</h3>
+    <p className="text-4xl font-bold mt-3">
+      {assetStats.availableAssets}
+    </p>
+  </div>
+
+  <div className="bg-gradient-to-r from-red-600 to-pink-500 text-white p-6 rounded-2xl shadow-lg">
+    <div className="text-3xl mb-3">🔔</div>
+    <h3>Unread Notifications</h3>
+    <p className="text-4xl font-bold mt-3">
+      {notificationCount}
+    </p>
+  </div>
+
+</div>
       {/* QUICK ACTIONS */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
 

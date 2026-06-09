@@ -133,5 +133,65 @@ router.get('/recent-leaves', async (req, res) => {
 
   }
 });
+// ==========================================
+// ASSET STATS
+// ==========================================
+router.get('/asset-stats', async (req, res) => {
+  try {
+    const totalAssets = await prisma.asset.count();
+
+    const allocatedAssets = await prisma.asset.count({
+      where: {
+        status: 'Allocated'
+      }
+    });
+
+    const availableAssets = await prisma.asset.count({
+      where: {
+        status: 'Available'
+      }
+    });
+
+    res.json({
+      totalAssets,
+      allocatedAssets,
+      availableAssets
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: error.message
+    });
+  }
+});
+
+// ==========================================
+// NOTIFICATION COUNT
+// ==========================================
+router.get('/notification-count', async (req, res) => {
+  try {
+
+    const unread = await prisma.notification.count({
+      where: {
+        is_read: false
+      }
+    });
+
+    res.json({
+      unread
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: error.message
+    });
+  }
+});
+
+
 
 export default router;
