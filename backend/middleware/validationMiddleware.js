@@ -1,40 +1,39 @@
-export const validateEmployee = (
-  req,
-  res,
-  next
-) => {
-  const {
-    email,
-    phone,
-    salary
-  } = req.body;
+import { employeeSchema } from '../validators/employee.validator.js';
+import { leaveSchema } from '../validators/leave.validator.js';
+import { assetSchema } from '../validators/asset.validator.js';
 
-  if (
-    email &&
-    !/^\S+@\S+\.\S+$/.test(email)
-  ) {
-    return res.status(400).json({
-      error: 'Invalid email format'
-    });
-  }
+export const validateEmployee = (req, res, next) => {
+    const { error } = employeeSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+        return res.status(422).json({
+            success: false,
+            message: 'Validation failed',
+            errors: error.details.map(e => e.message)
+        });
+    }
+    next();
+};
 
-  if (
-    phone &&
-    phone.length < 10
-  ) {
-    return res.status(400).json({
-      error: 'Phone must be 10 digits'
-    });
-  }
+export const validateLeave = (req, res, next) => {
+    const { error } = leaveSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+        return res.status(422).json({
+            success: false,
+            message: 'Validation failed',
+            errors: error.details.map(e => e.message)
+        });
+    }
+    next();
+};
 
-  if (
-    salary &&
-    Number(salary) <= 0
-  ) {
-    return res.status(400).json({
-      error: 'Salary must be greater than 0'
-    });
-  }
-
-  next();
+export const validateAsset = (req, res, next) => {
+    const { error } = assetSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+        return res.status(422).json({
+            success: false,
+            message: 'Validation failed',
+            errors: error.details.map(e => e.message)
+        });
+    }
+    next();
 };

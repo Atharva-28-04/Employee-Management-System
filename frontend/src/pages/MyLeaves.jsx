@@ -9,7 +9,7 @@ function MyLeaves() {
 
   useEffect(() => {
     fetch(
-      `http://localhost:5000/api/leaves/my-leaves?userId=${user?.id}`
+      `http://localhost:5000/api/v1/leaves/my-leaves?userId=${user?.id}`
     )
       .then((res) => res.json())
       .then((data) => {

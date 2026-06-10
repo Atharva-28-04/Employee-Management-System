@@ -15,7 +15,7 @@ function AssetManagement() {
   const fetchAssets = async () => {
     try {
       const response = await fetch(
-        'http://localhost:5000/api/assets'
+        'http://localhost:5000/api/v1/assets'
       );
 
       const data = await response.json();
@@ -38,7 +38,7 @@ useEffect(() => {
 
     try {
       await fetch(
-        'http://localhost:5000/api/assets',
+        'http://localhost:5000/api/v1/assets',
         {
           method: 'POST',
           headers: {
@@ -66,7 +66,7 @@ useEffect(() => {
 const allocateAsset = async (assetId) => {
   try {
     await fetch(
-      'http://localhost:5000/api/assets/allocate',
+      'http://localhost:5000/api/v1/assets/allocate',
       {
         method: 'POST',
         headers: {
@@ -91,7 +91,7 @@ const allocateAsset = async (assetId) => {
 const returnAsset = async (allocationId) => {
   try {
     await fetch(
-      `http://localhost:5000/api/assets/return/${allocationId}`,
+      `http://localhost:5000/api/v1/assets/return/${allocationId}`,
       {
         method: 'PUT'
       }

@@ -39,7 +39,7 @@ const EmployeeRegistry = () => {
   // 1. Fetch Structural Master Data and Load Profile Details if in Edit Mode [cite: 30, 32, 34]
   useEffect(() => {
     // Fetch live Departments Master list [cite: 30]
-    fetch('http://localhost:5000/api/departments')
+    fetch('http://localhost:5000/api/v1/departments')
       .then(res => res.json())
       .then(data => {
         setDepartments(data);
@@ -50,14 +50,14 @@ const EmployeeRegistry = () => {
       .catch(err => console.error("Error fetching departments:", err));
       
     // Fetch live Technical Skills Master list [cite: 32]
-    fetch('http://localhost:5000/api/skills')
+    fetch('http://localhost:5000/api/v1/skills')
       .then(res => res.json())
       .then(data => setAvailableSkills(data))
       .catch(err => console.error("Error fetching skills:", err));
 
     // Atomic fetch for targeted single profile details if editing [cite: 34, 55]
     if (isEditMode) {
-      fetch(`http://localhost:5000/api/employees/${id}`)
+      fetch(`http://localhost:5000/api/v1/employees/${id}`)
         .then(res => res.json())
         .then(data => {
           const nameParts = data.name ? data.name.split(' ') : ['', ''];
@@ -113,8 +113,8 @@ const EmployeeRegistry = () => {
 
     // Dynamically adjust API parameters depending on runtime Mode configuration [cite: 34]
     const targetUrl = isEditMode 
-      ? `http://localhost:5000/api/employees/${id}`
-      : 'http://localhost:5000/api/employees';
+      ? `http://localhost:5000/api/v1/employees/${id}`
+      : 'http://localhost:5000/api/v1/employees';
 
     const targetMethod = isEditMode ? 'PUT' : 'POST';
 
@@ -136,7 +136,7 @@ const EmployeeRegistry = () => {
           fileFormData.append('documents', files[i]);
         }
 
-        await fetch('http://localhost:5000/api/employees/upload', {
+        await fetch('http://localhost:5000/api/v1/employees/upload', {
           method: 'POST',
           body: fileFormData,
         });

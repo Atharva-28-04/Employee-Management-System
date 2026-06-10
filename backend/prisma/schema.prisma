@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  
 }
 
 // Table 1: Users

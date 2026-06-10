@@ -32,7 +32,7 @@ useEffect(() => {
   const loadNotifications = async () => {
     try {
       const response = await fetch(
-        'http://localhost:5000/api/notifications'
+        'http://localhost:5000/api/v1/notifications'
       );
 
       const data = await response.json();

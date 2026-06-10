@@ -13,7 +13,7 @@ async function registerUser() {
   };
 
   try {
-    const response = await fetch('http://localhost:5000/api/auth/signup', {
+    const response = await fetch('http://localhost:5000/api/v1/auth/signup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

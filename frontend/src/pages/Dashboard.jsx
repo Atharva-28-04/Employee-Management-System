@@ -53,12 +53,12 @@ const [notificationCount, setNotificationCount] = useState(0);
   assetRes,
   notificationRes
 ] = await Promise.all([
-        fetch('http://localhost:5000/api/dashboard/stats'),
-        fetch('http://localhost:5000/api/dashboard/department-chart'),
-        fetch('http://localhost:5000/api/dashboard/leave-chart'),
-        fetch('http://localhost:5000/api/dashboard/recent-leaves'),
-        fetch('http://localhost:5000/api/dashboard/asset-stats'),
-        fetch('http://localhost:5000/api/dashboard/notification-count')
+        fetch('http://localhost:5000/api/v1/dashboard/stats'),
+        fetch('http://localhost:5000/api/v1/dashboard/department-chart'),
+        fetch('http://localhost:5000/api/v1/dashboard/leave-chart'),
+        fetch('http://localhost:5000/api/v1/dashboard/recent-leaves'),
+        fetch('http://localhost:5000/api/v1/dashboard/asset-stats'),
+        fetch('http://localhost:5000/api/v1/dashboard/notification-count')
 
       ]);
 

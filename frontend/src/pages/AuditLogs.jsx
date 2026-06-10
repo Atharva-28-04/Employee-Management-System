@@ -9,7 +9,7 @@ function AuditLogs() {
   const fetchLogs = async () => {
     try {
       const response = await fetch(
-        'http://localhost:5000/api/audit-logs'
+        'http://localhost:5000/api/v1/audit-logs'
       );
 
       const data = await response.json();

@@ -21,7 +21,7 @@ setLoading(true);
 
 try {
   const response = await fetch(
-    'http://localhost:5000/api/auth/login',
+    'http://localhost:5000/api/v1/auth/login',
     {
       method: 'POST',
       headers: {

@@ -28,7 +28,7 @@ function LeaveApplication() {
 
     try {
       const response = await fetch(
-        'http://localhost:5000/api/leaves/apply',
+        'http://localhost:5000/api/v1/leaves/apply',
         {
           method: 'POST',
           headers: {

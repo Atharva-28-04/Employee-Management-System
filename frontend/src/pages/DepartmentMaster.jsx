@@ -8,7 +8,7 @@ const DepartmentMaster = () => {
 
   // Fetch live departments from our brand new master API
   const fetchDepartments = () => {
-    fetch('http://localhost:5000/api/departments')
+    fetch('http://localhost:5000/api/v1/departments')
       .then((res) => res.json())
       .then((data) => setDepartments(data))
       .catch((err) => console.error('Error fetching departments:', err));
@@ -24,7 +24,7 @@ const DepartmentMaster = () => {
 
     setStatus('loading');
     try {
-      const response = await fetch('http://localhost:5000/api/departments', {
+      const response = await fetch('http://localhost:5000/api/v1/departments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ department_name: newDepartmentName }),

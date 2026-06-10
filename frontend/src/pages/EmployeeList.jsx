@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import EmployeeDirectoryCards from './EmployeeDirectoryCards';
+
 
 const EmployeeList = () => {
   const navigate = useNavigate();
@@ -20,7 +22,7 @@ const employeesPerPage = 5;
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/employees');
+        const response = await fetch('http://localhost:5000/api/v1/employees')
 
         if (!response.ok) {
           throw new Error('Failed to fetch employee data');
@@ -30,7 +32,8 @@ const employeesPerPage = 5;
         console.log(data);
         console.log('Employees API:', data);
 
-        setEmployees(Array.isArray(data) ? data : []);
+       // Change this line:
+setEmployees(Array.isArray(data) ? data : (data.employees || []));
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -43,42 +46,36 @@ const employeesPerPage = 5;
   }, []);
 
   const handleDelete = async (userId, employeeName) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete ${employeeName}? This cannot be undone.`
-      )
-    ) {
+    if (!window.confirm(`Are you sure you want to delete ${employeeName}? This cannot be undone.`)) {
       return;
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/employees/${userId}`,
-        {
-          method: 'DELETE',
-        }
-      );
+      const response = await fetch(`http://localhost:5000/api/v1/employees/${userId}`, {
+        method: 'DELETE',
+      });
 
       if (!response.ok) {
         throw new Error('Failed to delete employee');
       }
 
-      setEmployees((prev) =>
-        prev.filter((emp) => emp.userId !== userId)
-      );
+      // ✅ parseInt ensures number vs string mismatch is fixed
+      setEmployees((prev) => prev.filter((emp) => emp.id !== parseInt(userId)));
+
     } catch (err) {
       alert(err.message);
     }
-  };
+};
+     
 const filteredEmployees = employees
   .filter((employee) =>
-    employee?.name
-      ?.toLowerCase()
+    (employee?.user?.name || '')
+      .toLowerCase()
       .includes(searchTerm.toLowerCase())
   )
   .sort((a, b) => {
-    const nameA = a?.name || '';
-    const nameB = b?.name || '';
+    const nameA = a?.user?.name || '';
+    const nameB = b?.user?.name || '';
 
     return sortOrder === 'asc'
       ? nameA.localeCompare(nameB)
@@ -97,8 +94,9 @@ const currentEmployees =
     indexOfLastEmployee
   );
 
-const totalPages = Math.ceil(
-  filteredEmployees.length / employeesPerPage
+const totalPages = Math.max(
+  1,
+  Math.ceil(filteredEmployees.length / employeesPerPage)
 );
 
 
@@ -178,7 +176,7 @@ const totalPages = Math.ceil(
                 </td>
               </tr>
             ) : (
-              currentEmployees.map((employee) => (
+             currentEmployees.map((employee) => (
                 <tr
                   key={employee.id}
                   className="border-b border-slate-800"
@@ -189,19 +187,19 @@ const totalPages = Math.ceil(
   {employee.documents?.length > 0 ? (
     <img
       src={`http://localhost:5000/${employee.documents[0].filePath}`}
-      alt={employee.name}
+      alt={employee?.user?.name}
       className="w-full h-full object-cover"
     />
   ) : (
     <span>
-      {employee?.name?.charAt(0)?.toUpperCase() || 'U'}
+      {employee?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
     </span>
   )}
 </div>
 
                       <div>
-                        {employee?.name || 'Unknown User'}
-                      </div>
+  {employee?.user?.name || 'Unknown User'}
+</div>
                     </div>
                   </td>
 
@@ -218,7 +216,7 @@ const totalPages = Math.ceil(
                   </td>
 
                   <td className="p-4">
-                    {employee?.department?.name ||
+                    {employee?.department?.department_name ||
                       'Unassigned'}
                   </td>
 
@@ -239,17 +237,17 @@ const totalPages = Math.ceil(
                         Edit
                       </button>
 
-                      <button
-                        onClick={() =>
-                          handleDelete(
-                            employee.userId,
-                            employee.name || 'Unknown User'
-                          )
-                        }
-                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm"
-                      >
-                        Delete
-                      </button>
+                     <button
+ onClick={() =>
+  handleDelete(
+    employee.id,
+    employee?.user?.name || 'Unknown User'
+  )
+}
+  className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm"
+>
+  Delete
+</button>
                     </div>
                   </td>
                 </tr>
@@ -285,7 +283,14 @@ const totalPages = Math.ceil(
 
 </div>
 
+{/* Your existing tables or text are up here... */}
+    
+  {/* Pass the filtered data into the component as a 'prop' */}
+<div className="mt-8 mx-6 pb-8">
+    <EmployeeDirectoryCards employees={filteredEmployees} />
+</div>
 
+    {/* The rest of your page closes out... */}
 
       </div>
     </div>

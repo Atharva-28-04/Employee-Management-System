@@ -4,7 +4,7 @@ function ManagerLeaves() {
   const [leaves, setLeaves] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/leaves/pending')
+    fetch('http://localhost:5000/api/v1/leaves/pending')
       .then((res) => res.json())
       .then((data) => setLeaves(data))
       .catch(console.error);

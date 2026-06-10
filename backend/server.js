@@ -1,10 +1,12 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import 'dotenv/config'; // Handles environment variables automatically
 import path from 'path';
 import { fileURLToPath } from 'url';
-import errorHandler from './middleware/errorHandler.js';
-
+import { errorHandler } from './middleware/errorHandler.js';
+import './jobs/cronJobs.js';
 // Route Imports
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
@@ -16,8 +18,6 @@ import assetRoutes from './routes/assetRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import auditRoutes from './routes/auditRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
-
-
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -33,27 +33,33 @@ app.use(express.json());
 // Serve static uploaded files (Images/Documents)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// API Routes Base Configuration
-app.use('/api/auth', authRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/employees', employeeRoutes);
-app.use('/api/employees/upload', uploadRoutes);
-app.use('/api', masterRoutes); // Mounts /api/departments and /api/skills cleanly
-app.use('/api/leaves', leaveRoutes);
-app.use('/api/assets', assetRoutes);
-app.use(
-  '/api/notifications',
-  notificationRoutes
-);
-app.use('/api/audit-logs', auditRoutes);
-app.use('/api/reports', reportRoutes);
+// ✅ Health Check API
+app.get('/api/v1/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Server is running healthy 🚀',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+  });
+});
 
+// ✅ API v1 Routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/employees', employeeRoutes);
+app.use('/api/v1/employees/upload', uploadRoutes);
+app.use('/api/v1', masterRoutes);
+app.use('/api/v1/leaves', leaveRoutes);
+app.use('/api/v1/assets', assetRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/audit-logs', auditRoutes);
+app.use('/api/v1/reports', reportRoutes);
 
-
+// Centralized Error Handler
 app.use(errorHandler);
-
 
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} 🚀`);
+  console.log(`Health check: http://localhost:${PORT}/api/v1/health`);
 });

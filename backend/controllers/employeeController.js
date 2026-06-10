@@ -1,107 +1,51 @@
-const prisma = require('../config/prismaClient');
+import * as employeeService from '../services/employee.service.js';
 
 // ==========================================
-// 1. CREATE EMPLOYEE PROFILE (ADMIN ONLY)
+// 1. CREATE EMPLOYEE PROFILE
 // ==========================================
-exports.createEmployee = async (req, res) => {
+export const createEmployee = async (req, res, next) => {
     try {
-        const { name, phone, email, password, departmentId } = req.body;
-
-        // Ensure mandatory info is present
-        if (!name || !email || !password) {
-            return res.status(400).json({ message: "Name, email, and password are required" });
-        }
-
-        // Auto-create the User Auth account and link the Employee profile together
-        const bcrypt = require('bcryptjs');
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        const newEmployee = await prisma.employee.create({
-            data: {
-                name,
-                phone,
-                profileImage: req.file ? `/uploads/${req.file.filename}` : null,
-                departmentId: departmentId ? parseInt(departmentId) : null,
-                user: {
-                    create: {
-                        email,
-                        password: hashedPassword,
-                        role: 'USER'
-                    }
-                }
-            },
-            include: { user: true, department: true }
-        });
-
+        const newEmployee = await employeeService.createEmployee(req.body, req.file);
         res.status(201).json({ message: "Employee profile created successfully", data: newEmployee });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        // We pass the error to Winston so it prints in the terminal!
+        next(error);
     }
 };
 
 // ==========================================
-// 2. GET ALL EMPLOYEES (ADMIN / USER)
+// 2. GET ALL EMPLOYEES
 // ==========================================
-exports.getAllEmployees = async (req, res) => {
+export const getAllEmployees = async (req, res, next) => {
     try {
-        const employees = await prisma.employee.findMany({
-            include: {
-                user: { select: { email: true, role: true } },
-                department: true,
-                skills: { include: { skill: true } }
-            }
-        });
+        // Using req.query so your Pagination and Search works!
+        const employees = await employeeService.getAllEmployees(req.query);
         res.json(employees);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        next(error);
     }
 };
 
 // ==========================================
 // 3. UPDATE EMPLOYEE PROFILE
 // ==========================================
-exports.updateEmployee = async (req, res) => {
+export const updateEmployee = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const { name, phone, departmentId } = req.body;
-
-        const updatedData = {
-            name,
-            phone,
-            departmentId: departmentId ? parseInt(departmentId) : null
-        };
-
-        // If a new image was uploaded via Multer, append its path
-        if (req.file) {
-            updatedData.profileImage = `/uploads/${req.file.filename}`;
-        }
-
-        const updatedEmployee = await prisma.employee.update({
-            where: { id: parseInt(id) },
-            data: updatedData
-        });
-
+        const updatedEmployee = await employeeService.updateEmployee(req.params.id, req.body, req.file);
         res.json({ message: "Employee updated successfully", data: updatedEmployee });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        next(error);
     }
 };
 
 // ==========================================
-// 4. DELETE EMPLOYEE (ADMIN ONLY)
+// 4. DELETE EMPLOYEE
 // ==========================================
-exports.deleteEmployee = async (req, res) => {
+export const deleteEmployee = async (req, res, next) => {
     try {
-        const { id } = req.params;
-
-        // Cascade delete handles removing the linked user row automatically
-        await prisma.employee.delete({
-            where: { id: parseInt(id) }
-        });
-
+        await employeeService.deleteEmployee(req.params.id);
         res.json({ message: "Employee records purged successfully" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        next(error);
     }
 };

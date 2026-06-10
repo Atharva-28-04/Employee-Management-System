@@ -7,7 +7,7 @@ function HRLeaves() {
   const fetchLeaves = async () => {
     try {
       const response = await fetch(
-        'http://localhost:5000/api/leaves/pending'
+        'http://localhost:5000/api/v1/leaves/pending'
       );
 
       const data = await response.json();
@@ -31,7 +31,7 @@ function HRLeaves() {
   const approveLeave = async (id) => {
     try {
       await fetch(
-        `http://localhost:5000/api/leaves/${id}/hr-approve`,
+        `http://localhost:5000/api/v1/leaves/${id}/hr-approve`,
         {
           method: 'PUT',
           headers: {
@@ -52,7 +52,7 @@ function HRLeaves() {
   const rejectLeave = async (id) => {
     try {
       await fetch(
-        `http://localhost:5000/api/leaves/${id}/hr-reject`,
+        `http://localhost:5000/api/v1/leaves/${id}/hr-reject`,
         {
           method: 'PUT',
           headers: {

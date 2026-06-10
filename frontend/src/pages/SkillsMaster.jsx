@@ -8,7 +8,7 @@ const SkillsMaster = () => {
 
   // Fetch live technical skills from our backend master API
   const fetchSkills = () => {
-    fetch('http://localhost:5000/api/skills')
+    fetch('http://localhost:5000/api/v1/skills')
       .then((res) => res.json())
       .then((data) => setSkills(data))
       .catch((err) => console.error('Error fetching skills:', err));
@@ -24,7 +24,7 @@ const SkillsMaster = () => {
 
     setStatus('loading');
     try {
-      const response = await fetch('http://localhost:5000/api/skills', {
+      const response = await fetch('http://localhost:5000/api/v1/skills', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ skill_name: newSkillName }),

@@ -28,17 +28,17 @@ function Reports() {
 
       if (type === 'Employee') {
         endpoint =
-          'http://localhost:5000/api/reports/employees';
+          'http://localhost:5000/api/v1/reports/employees';
       }
 
       if (type === 'Leave') {
         endpoint =
-          'http://localhost:5000/api/reports/leaves';
+          'http://localhost:5000/api/v1/reports/leaves';
       }
 
       if (type === 'Asset') {
         endpoint =
-          'http://localhost:5000/api/reports/assets';
+          'http://localhost:5000/api/v1/reports/assets';
       }
 
       const response = await fetch(endpoint);
