@@ -49,3 +49,15 @@ export const deleteEmployee = async (req, res, next) => {
         next(error);
     }
 };
+
+export const getEmployeeById = async (req, res, next) => {
+    try {
+        const employee = await employeeService.getEmployeeById(req.params.id);
+        if (!employee) {
+            return res.status(404).json({ message: "Employee profile not found" });
+        }
+        res.json(employee);
+    } catch (error) {
+        next(error);
+    }
+};

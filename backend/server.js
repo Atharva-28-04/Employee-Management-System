@@ -6,6 +6,9 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { errorHandler } from './middleware/errorHandler.js';
+import { verifyToken } from './middleware/authMiddleware.js';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swagger.js';
 import './jobs/cronJobs.js';
 // Route Imports
 import authRoutes from './routes/authRoutes.js';
@@ -18,6 +21,7 @@ import assetRoutes from './routes/assetRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import auditRoutes from './routes/auditRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
+import attendanceRoutes from './routes/attendanceRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -43,8 +47,15 @@ app.get('/api/v1/health', (req, res) => {
   });
 });
 
+// ✅ Swagger API Documentation (Public)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // ✅ API v1 Routes
 app.use('/api/v1/auth', authRoutes);
+
+// Apply JWT verification middleware to secure all subsequent API routes
+app.use(verifyToken);
+
 app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/employees', employeeRoutes);
 app.use('/api/v1/employees/upload', uploadRoutes);
@@ -54,6 +65,7 @@ app.use('/api/v1/assets', assetRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/audit-logs', auditRoutes);
 app.use('/api/v1/reports', reportRoutes);
+app.use('/api/v1/attendance', attendanceRoutes);
 
 // Centralized Error Handler
 app.use(errorHandler);

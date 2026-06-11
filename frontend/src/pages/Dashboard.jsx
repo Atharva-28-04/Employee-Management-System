@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import EmployeeList from './EmployeeList';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -24,6 +25,8 @@ const COLORS = [
 
 function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const isHR = user?.role === 'hr';
 
   const [stats, setStats] = useState({
     employees: 0,
@@ -223,40 +226,107 @@ const [notificationCount, setNotificationCount] = useState(0);
 
 </div>
       {/* QUICK ACTIONS */}
-      <div className="grid md:grid-cols-4 gap-4 mb-8">
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
+        
+        {/* General Actions for All Employees */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <div 
+            onClick={() => navigate('/leave-application')}
+            className="bg-white rounded-2xl p-5 shadow hover:shadow-xl transition cursor-pointer flex flex-col justify-between"
+          >
+            <div className="text-3xl mb-2">📝</div>
+            <div>
+              <h3 className="font-bold text-slate-800">Apply Leave</h3>
+              <p className="text-xs text-slate-500">Create leave request</p>
+            </div>
+          </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow hover:shadow-xl transition cursor-pointer">
-          <div className="text-3xl mb-2">➕</div>
-          <h3 className="font-bold">Add Employee</h3>
-          <p className="text-sm text-slate-500">
-            Register new employee
-          </p>
+          <div 
+            onClick={() => navigate('/my-leaves')}
+            className="bg-white rounded-2xl p-5 shadow hover:shadow-xl transition cursor-pointer flex flex-col justify-between"
+          >
+            <div className="text-3xl mb-2">📅</div>
+            <div>
+              <h3 className="font-bold text-slate-800">My Leaves</h3>
+              <p className="text-xs text-slate-500">View status & history</p>
+            </div>
+          </div>
+
+          <div 
+            onClick={() => navigate('/attendance')}
+            className="bg-white rounded-2xl p-5 shadow hover:shadow-xl transition cursor-pointer flex flex-col justify-between"
+          >
+            <div className="text-3xl mb-2">🕒</div>
+            <div>
+              <h3 className="font-bold text-slate-800">Attendance</h3>
+              <p className="text-xs text-slate-500">Clock in/out console</p>
+            </div>
+          </div>
+
+          <div 
+            onClick={() => navigate('/profile')}
+            className="bg-white rounded-2xl p-5 shadow hover:shadow-xl transition cursor-pointer flex flex-col justify-between"
+          >
+            <div className="text-3xl mb-2">👤</div>
+            <div>
+              <h3 className="font-bold text-slate-800">My Profile</h3>
+              <p className="text-xs text-slate-500">View personal details</p>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow hover:shadow-xl transition cursor-pointer">
-          <div className="text-3xl mb-2">📝</div>
-          <h3 className="font-bold">Apply Leave</h3>
-          <p className="text-sm text-slate-500">
-            Create leave request
-          </p>
-        </div>
+        {/* HR Administrative Actions */}
+        {isHR && (
+          <div>
+            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3 mt-6">HR Management Console</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div 
+                onClick={() => navigate('/register')}
+                className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between"
+              >
+                <div className="text-3xl mb-2">➕</div>
+                <div>
+                  <h3 className="font-bold text-slate-800">Add Employee</h3>
+                  <p className="text-xs text-slate-500">Register new employee</p>
+                </div>
+              </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow hover:shadow-xl transition cursor-pointer">
-          <div className="text-3xl mb-2">🏢</div>
-          <h3 className="font-bold">Departments</h3>
-          <p className="text-sm text-slate-500">
-            Manage departments
-          </p>
-        </div>
+              <div 
+                onClick={() => navigate('/departments')}
+                className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between"
+              >
+                <div className="text-3xl mb-2">🏢</div>
+                <div>
+                  <h3 className="font-bold text-slate-800">Departments</h3>
+                  <p className="text-xs text-slate-500">Manage business departments</p>
+                </div>
+              </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow hover:shadow-xl transition cursor-pointer">
-          <div className="text-3xl mb-2">⚡</div>
-          <h3 className="font-bold">Skills</h3>
-          <p className="text-sm text-slate-500">
-            Manage employee skills
-          </p>
-        </div>
+              <div 
+                onClick={() => navigate('/skills')}
+                className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between"
+              >
+                <div className="text-3xl mb-2">⚡</div>
+                <div>
+                  <h3 className="font-bold text-slate-800">Skills Master</h3>
+                  <p className="text-xs text-slate-500">Manage skill tags</p>
+                </div>
+              </div>
 
+              <div 
+                onClick={() => navigate('/assets')}
+                className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between"
+              >
+                <div className="text-3xl mb-2">💻</div>
+                <div>
+                  <h3 className="font-bold text-slate-800">Asset Registry</h3>
+                  <p className="text-xs text-slate-500">Allocate hardware & tools</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* CHARTS */}

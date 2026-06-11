@@ -1,8 +1,9 @@
 import Joi from 'joi';
 
 export const leaveSchema = Joi.object({
-    leaveType: Joi.string().required(),
-    startDate: Joi.date().required(),
-    endDate: Joi.date().greater(Joi.ref('startDate')).required(),
-    reason: Joi.string().min(10).max(500).required(),
+  employeeId: Joi.number().required(),
+  leaveTypeId: Joi.number().required(),
+  fromDate: Joi.date().required(),
+  toDate: Joi.date().required(),
+  reason: Joi.string().required()
 });

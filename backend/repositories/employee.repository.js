@@ -12,11 +12,11 @@ const findAll = async (whereClause, skip, take, orderBy) => {
     const cacheKey = `employees_${JSON.stringify(whereClause)}_${skip}_${take}`;
 
     // 1. Check if data exists in cache
-   // const cachedData = cache.get(cacheKey);
-   // if (cachedData) {
-       // console.log('✅ Serving from cache');
-      //  return cachedData;
-  //  }
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+        console.log('✅ Serving from cache');
+        return cachedData;
+    }
 
     // 2. If not in cache, fetch from database
 const employees = await prisma.employee.findMany({
@@ -60,6 +60,13 @@ const update = async (id, updatedData) => {
     });
 };
 
+const findById = async (id) => {
+    return await prisma.employee.findUnique({
+        where: { id: parseInt(id) },
+        include: { user: true, department: true }
+    });
+};
+
 const remove = async (id) => {
     // Clear cache when data changes
     cache.flushAll();
@@ -71,6 +78,7 @@ const remove = async (id) => {
 export default {
     create,
     findAll,
+    findById,
     update,
     remove
 };

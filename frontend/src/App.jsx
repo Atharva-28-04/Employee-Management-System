@@ -20,11 +20,11 @@ import Reports from './pages/Reports';
 import LeaveApplication from './pages/LeaveApplication.jsx';
 import MyLeaves from './pages/MyLeaves.jsx';
 import HRLeaves from './pages/HRLeaves.jsx';
+import Attendance from './pages/Attendance.jsx';
 
 function App() {
 return ( <Router> <Routes>
 
-```
     {/* PUBLIC ROUTES */}
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
@@ -52,24 +52,16 @@ return ( <Router> <Routes>
           path="/my-leaves"
           element={<MyLeaves />}
         />
-<Route
-  path="/assets"
-  element={<AssetManagement />}
-/>
-     <Route
-  path="/audit-logs"
-  element={<AuditLogs />}
-/>
-     
-     
-     
-     
+        <Route
+          path="/attendance"
+          element={<Attendance />}
+        />
+        <Route
+          path="/profile"
+          element={<Profile />}
+        />
       </Route>
     </Route>
-<Route
-  path="/profile"
-  element={<Profile />}
-/>
     {/* HR ONLY */}
     <Route
       element={
@@ -109,10 +101,18 @@ return ( <Router> <Routes>
           path="/hr-leaves"
           element={<HRLeaves />}
         />
-<Route
-  path="/reports"
-  element={<Reports />}
-/>
+        <Route
+          path="/reports"
+          element={<Reports />}
+        />
+        <Route
+          path="/assets"
+          element={<AssetManagement />}
+        />
+        <Route
+          path="/audit-logs"
+          element={<AuditLogs />}
+        />
       </Route>
     </Route>
 

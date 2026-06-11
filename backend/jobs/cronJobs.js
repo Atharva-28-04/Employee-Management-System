@@ -46,4 +46,58 @@ cron.schedule('0 23 * * *', async () => {
     }
 });
 
+// ✅ Job 4: Daily Attendance Absence Marker — runs every day at 11:59 PM
+cron.schedule('59 23 * * *', async () => {
+    logger.info('⏰ Running Daily Attendance Absence Marker Job...');
+    try {
+        const localDateStr = new Date().toLocaleDateString('en-CA');
+        const today = new Date(localDateStr + 'T00:00:00.000Z');
+
+        // Find all employees
+        const employees = await prisma.employee.findMany();
+
+        let count = 0;
+        for (const emp of employees) {
+            // Check if they have an attendance record for today
+            const record = await prisma.attendance.findUnique({
+                where: {
+                    employee_id_date: {
+                        employee_id: emp.id,
+                        date: today
+                    }
+                }
+            });
+
+            if (!record) {
+                // Check if they had a leave application that is approved for today
+                const leave = await prisma.leaveApplication.findFirst({
+                    where: {
+                        employee_id: emp.id,
+                        status: 'Approved',
+                        from_date: { lte: today },
+                        to_date: { gte: today }
+                    }
+                });
+
+                // Create attendance record
+                await prisma.attendance.create({
+                    data: {
+                        employee_id: emp.id,
+                        date: today,
+                        clock_in: null,
+                        clock_out: null,
+                        status: leave ? 'On Leave' : 'Absent',
+                        total_hours: 0,
+                        remarks: leave ? `Approved Leave: ${leave.reason}` : 'System marked absent: No check-in'
+                    }
+                });
+                count++;
+            }
+        }
+        logger.info(`✅ Daily Attendance Job Complete. Marked ${count} employees absent/on-leave.`);
+    } catch (error) {
+        logger.error(`❌ Daily Attendance Absence Marker Job Failed: ${error.message}`);
+    }
+});
+
 logger.info('✅ All Cron Jobs Scheduled Successfully');

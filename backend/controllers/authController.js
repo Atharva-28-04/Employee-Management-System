@@ -70,6 +70,24 @@ const register = async (req, res) => {
       }
     });
 
+    // Initialize Leave Balances for the newly registered employee
+    if (newUser.employeeProfile) {
+      try {
+        const leaveTypes = await prisma.leaveType.findMany();
+        for (const lt of leaveTypes) {
+          await prisma.leaveBalance.create({
+            data: {
+              employee_id: newUser.employeeProfile.id,
+              leave_type_id: lt.id,
+              available_days: lt.total_days
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Error initializing leave balances:", err);
+      }
+    }
+
     return res.status(201).json({
       message: 'Account created successfully',
       userId: newUser.id

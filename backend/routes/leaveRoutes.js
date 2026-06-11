@@ -7,7 +7,10 @@ import {
   managerApproveLeave,
   managerRejectLeave,
   hrApproveLeave,
-  hrRejectLeave
+  hrRejectLeave,
+  getLeaveStats,
+  getLeaveTypes,
+  getLeaveBalances
 } from '../controllers/leaveController.js';
 
 const router = express.Router();
@@ -21,6 +24,15 @@ router.post('/apply', applyLeave);
 
 // View My Leaves
 router.get('/my-leaves', getMyLeaves);
+
+// Leave Stats
+router.get('/stats', getLeaveStats);
+
+// Get Leave Types
+router.get('/types', getLeaveTypes);
+
+// Get User Leave Balances
+router.get('/balances', getLeaveBalances);
 
 // ==========================================
 // MANAGER / HR

@@ -30,13 +30,51 @@ export const applyLeave = async (req, res) => {
       });
     }
 
+    // Check available leave balance
+    const balance = await prisma.leaveBalance.findUnique({
+      where: {
+        employee_id_leave_type_id: {
+          employee_id: employee.id,
+          leave_type_id: parseInt(leaveTypeId)
+        }
+      }
+    });
+
+    const requestedDays = parseInt(totalDays);
+    let availableDays = 0;
+
+    if (balance) {
+      availableDays = balance.available_days;
+    } else {
+      // Fallback: If no balance record exists, fetch default total days from LeaveType
+      const leaveType = await prisma.leaveType.findUnique({
+        where: { id: parseInt(leaveTypeId) }
+      });
+      availableDays = leaveType ? leaveType.total_days : 0;
+      if (leaveType) {
+        await prisma.leaveBalance.create({
+          data: {
+            employee_id: employee.id,
+            leave_type_id: parseInt(leaveTypeId),
+            available_days: leaveType.total_days
+          }
+        });
+      }
+    }
+
+    if (availableDays < requestedDays) {
+      return res.status(400).json({
+        message: `Insufficient leave balance. Requested: ${requestedDays} days, Available: ${availableDays} days.`
+      });
+    }
+
     const leave = await prisma.leaveApplication.create({
       data: {
         employee_id: employee.id,
         leave_type_id: parseInt(leaveTypeId),
         from_date: new Date(fromDate),
         to_date: new Date(toDate),
-        total_days: parseInt(totalDays),
+        total_days: requestedDays,
         reason: reason,
         status: "Pending"
       }
@@ -325,5 +363,103 @@ export const hrRejectLeave = async (req, res) => {
       error: error.message
     });
 
+  }
+};
+
+// ==========================================
+// GET LEAVE STATS (For Profile Page)
+// ==========================================
+export const getLeaveStats = async (req, res) => {
+  try {
+    const userId = parseInt(req.query.userId);
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required" });
+    }
+
+    const employee = await prisma.employee.findFirst({
+      where: { user_id: userId }
+    });
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee profile not found" });
+    }
+
+    const allLeaves = await prisma.leaveApplication.findMany({
+      where: { employee_id: employee.id }
+    });
+
+    const total = allLeaves.length;
+    const approved = allLeaves.filter(l => l.status === 'Approved').length;
+    const pending = allLeaves.filter(l => l.status === 'Pending').length;
+    const rejected = allLeaves.filter(l => l.status === 'Rejected').length;
+
+    res.json({
+      total,
+      approved,
+      pending,
+      rejected
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ==========================================
+// GET ALL LEAVE TYPES
+// ==========================================
+export const getLeaveTypes = async (req, res) => {
+  try {
+    const types = await prisma.leaveType.findMany();
+    res.json(types);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ==========================================
+// GET LEAVE BALANCES FOR A USER
+// ==========================================
+export const getLeaveBalances = async (req, res) => {
+  try {
+    const userId = parseInt(req.query.userId);
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required" });
+    }
+
+    const employee = await prisma.employee.findFirst({
+      where: { user_id: userId }
+    });
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee profile not found" });
+    }
+
+    let balances = await prisma.leaveBalance.findMany({
+      where: { employee_id: employee.id },
+      include: { leaveType: true }
+    });
+
+    // If balances are empty, initialize them dynamically to prevent blank lists
+    if (balances.length === 0) {
+      const leaveTypes = await prisma.leaveType.findMany();
+      for (const lt of leaveTypes) {
+        await prisma.leaveBalance.create({
+          data: {
+            employee_id: employee.id,
+            leave_type_id: lt.id,
+            available_days: lt.total_days
+          }
+        });
+      }
+      // Re-fetch
+      balances = await prisma.leaveBalance.findMany({
+        where: { employee_id: employee.id },
+        include: { leaveType: true }
+      });
+    }
+
+    res.json(balances);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

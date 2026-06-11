@@ -67,15 +67,22 @@ setEmployees(Array.isArray(data) ? data : (data.employees || []));
     }
 };
      
+const getEmployeeName = (emp) => {
+  if (emp?.first_name || emp?.last_name) {
+    return `${emp.first_name || ''} ${emp.last_name || ''}`.trim();
+  }
+  return emp?.user?.name || 'Unknown User';
+};
+
 const filteredEmployees = employees
   .filter((employee) =>
-    (employee?.user?.name || '')
+    getEmployeeName(employee)
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   )
   .sort((a, b) => {
-    const nameA = a?.user?.name || '';
-    const nameB = b?.user?.name || '';
+    const nameA = getEmployeeName(a);
+    const nameB = getEmployeeName(b);
 
     return sortOrder === 'asc'
       ? nameA.localeCompare(nameB)
@@ -187,18 +194,18 @@ const totalPages = Math.max(
   {employee.documents?.length > 0 ? (
     <img
       src={`http://localhost:5000/${employee.documents[0].filePath}`}
-      alt={employee?.user?.name}
+      alt={getEmployeeName(employee)}
       className="w-full h-full object-cover"
     />
   ) : (
     <span>
-      {employee?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
+      {getEmployeeName(employee).charAt(0).toUpperCase()}
     </span>
   )}
 </div>
 
                       <div>
-  {employee?.user?.name || 'Unknown User'}
+  {getEmployeeName(employee)}
 </div>
                     </div>
                   </td>

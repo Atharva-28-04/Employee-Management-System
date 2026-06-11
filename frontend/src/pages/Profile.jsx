@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -10,6 +11,38 @@ import {
 function Profile() {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const [stats, setStats] = useState({
+    total: 0,
+    approved: 0,
+    pending: 0,
+    rejected: 0
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/v1/leaves/stats?userId=${user?.id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('ems_token')}`
+            }
+          }
+        );
+        const data = await response.json();
+        if (response.ok) {
+          setStats(data);
+        }
+      } catch (err) {
+        console.error("Error fetching leave stats:", err);
+      }
+    };
+
+    if (user?.id) {
+      fetchStats();
+    }
+  }, [user]);
 
   return (
     <div className="max-w-7xl mx-auto py-6">
@@ -127,7 +160,7 @@ function Profile() {
               </h3>
 
               <p className="text-4xl font-bold text-indigo-700">
-                5
+                {stats.total}
               </p>
             </div>
 
@@ -137,7 +170,7 @@ function Profile() {
               </h3>
 
               <p className="text-4xl font-bold text-green-700">
-                2
+                {stats.approved}
               </p>
             </div>
 
@@ -147,7 +180,7 @@ function Profile() {
               </h3>
 
               <p className="text-4xl font-bold text-yellow-700">
-                3
+                {stats.pending}
               </p>
             </div>
 
@@ -157,7 +190,7 @@ function Profile() {
               </h3>
 
               <p className="text-4xl font-bold text-red-700">
-                0
+                {stats.rejected}
               </p>
             </div>
 

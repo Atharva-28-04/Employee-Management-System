@@ -5,25 +5,35 @@ const EmployeeDirectoryCards = ({ employees }) => {
         return <div className="text-slate-400 p-4">No matching employees found.</div>;
     }
 
+    const getEmpName = (emp) => {
+        if (emp.first_name || emp.last_name) {
+            return `${emp.first_name || ''} ${emp.last_name || ''}`.trim();
+        }
+        return emp.user?.name || emp.name || 'Unknown User';
+    };
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {employees.map((emp) => (
-                <div key={emp.id || emp.userId} className="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700 hover:border-blue-500 transition-all">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center font-bold text-lg">
-                            {emp.name?.charAt(0).toUpperCase() || 'U'}
+            {employees.map((emp) => {
+                const name = getEmpName(emp);
+                return (
+                    <div key={emp.id || emp.userId} className="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700 hover:border-blue-500 transition-all">
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center font-bold text-lg">
+                                {name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-100">{name}</h3>
+                                <p className="text-blue-400 text-xs uppercase tracking-wider">{emp.designation || 'Staff'}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="text-lg font-bold text-slate-100">{emp.name}</h3>
-                            <p className="text-blue-400 text-xs uppercase tracking-wider">{emp.designation || 'Staff'}</p>
+                        <div className="text-sm text-slate-300 space-y-1">
+                            <p>📧 {emp.user?.email || 'N/A'}</p>
+                            <p>📱 {emp.phone || 'N/A'}</p>
                         </div>
                     </div>
-                    <div className="text-sm text-slate-300 space-y-1">
-                        <p>📧 {emp.user?.email || 'N/A'}</p>
-                        <p>📱 {emp.phone || 'N/A'}</p>
-                    </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 };

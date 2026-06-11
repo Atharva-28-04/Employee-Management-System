@@ -1,6 +1,7 @@
 import employeeRepository from '../repositories/employee.repository.js';
 import bcrypt from 'bcryptjs';
 import { sendWelcomeEmail } from '../utils/email.js';
+import prisma from '../config/prismaClient.js';
 
 export const createEmployee = async (employeeData, file) => {
     // 1. Extract fields
@@ -30,13 +31,30 @@ export const createEmployee = async (employeeData, file) => {
                 name: fullName,
                 email: email,
                 password: hashedPassword,
-                role: 'USER'
+                role: 'employee'
             }
         }
     };
 
     // 3. Save and Notify
     const newEmployee = await employeeRepository.create(dataToSave);
+
+    // Initialize Leave Balances for all active LeaveTypes
+    try {
+        const leaveTypes = await prisma.leaveType.findMany();
+        for (const lt of leaveTypes) {
+            await prisma.leaveBalance.create({
+                data: {
+                    employee_id: newEmployee.id,
+                    leave_type_id: lt.id,
+                    available_days: lt.total_days
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Error initializing leave balances:", err);
+    }
+
     sendWelcomeEmail(email, fullName, defaultPassword);
     return newEmployee;
 };
@@ -71,4 +89,8 @@ export const updateEmployee = async (id, updateData, file) => {
 
 export const deleteEmployee = async (id) => {
     return await employeeRepository.remove(id);
+};
+
+export const getEmployeeById = async (id) => {
+    return await employeeRepository.findById(id);
 };

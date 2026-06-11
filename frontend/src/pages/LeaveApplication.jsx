@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import {
   FiCalendar,
@@ -15,6 +15,41 @@ function LeaveApplication() {
     totalDays: '',
     reason: ''
   });
+
+  const [balances, setBalances] = useState([]);
+  const [leaveTypes, setLeaveTypes] = useState([]);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  const loadData = async () => {
+    if (!user?.id) return;
+    try {
+      const [typesRes, balancesRes, myLeavesRes] = await Promise.all([
+        fetch('http://localhost:5000/api/v1/leaves/types'),
+        fetch(`http://localhost:5000/api/v1/leaves/balances?userId=${user?.id}`),
+        fetch(`http://localhost:5000/api/v1/leaves/my-leaves?userId=${user?.id}`)
+      ]);
+
+      if (typesRes.ok) {
+        const typesData = await typesRes.json();
+        setLeaveTypes(typesData);
+      }
+      if (balancesRes.ok) {
+        const balancesData = await balancesRes.json();
+        setBalances(balancesData);
+      }
+      if (myLeavesRes.ok) {
+        const myLeavesData = await myLeavesRes.json();
+        const pending = myLeavesData.filter(l => l.status === 'Pending' || l.status === 'Manager Approved').length;
+        setPendingCount(pending);
+      }
+    } catch (err) {
+      console.error("Error loading leave resources:", err);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData({
@@ -53,6 +88,7 @@ function LeaveApplication() {
           totalDays: '',
           reason: ''
         });
+        loadData();
       } else {
         alert(data.message || 'Failed');
       }
@@ -79,26 +115,41 @@ function LeaveApplication() {
       </div>
 
       {/* INFO CARDS */}
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
-
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg">
-          <p className="text-sm opacity-80">
-            Available Leaves
-          </p>
-
-          <h2 className="text-4xl font-bold mt-2">
-            18
-          </h2>
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
+        
+        {/* Dynamic Leave Balances */}
+        <div className="md:col-span-2 bg-white rounded-3xl p-6 shadow-lg border border-slate-100">
+          <h3 className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-4">Available Leave Balances</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {balances.length === 0 ? (
+              <div className="col-span-full text-slate-400 text-sm">No leave balances initialized yet.</div>
+            ) : (
+              balances.map(b => (
+                <div key={b.id} className="bg-slate-50 border rounded-2xl p-4 flex flex-col justify-between">
+                  <span className="text-slate-600 text-xs font-semibold truncate" title={b.leaveType?.leave_name}>
+                    {b.leaveType?.leave_name}
+                  </span>
+                  <span className="text-2xl font-black text-slate-800 mt-2">
+                    {b.available_days}
+                  </span>
+                  <span className="text-[10px] text-slate-400 mt-1">Days left</span>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
-        <div className="bg-gradient-to-r from-emerald-600 to-green-500 rounded-2xl p-6 text-white shadow-lg">
-          <p className="text-sm opacity-80">
-            Leave Status
+        {/* Dynamic Pending Status */}
+        <div className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 rounded-3xl p-6 text-white shadow-lg flex flex-col justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-wider font-bold text-indigo-100">Pending Approvals</p>
+            <h2 className="text-5xl font-black mt-4">
+              {pendingCount}
+            </h2>
+          </div>
+          <p className="text-xs text-indigo-200 mt-4 font-medium">
+            {pendingCount > 0 ? "Awaiting manager or HR sign-off" : "No pending leave applications"}
           </p>
-
-          <h2 className="text-xl font-bold mt-3">
-            No Pending Requests
-          </h2>
         </div>
 
       </div>
@@ -142,18 +193,11 @@ function LeaveApplication() {
               <option value="">
                 Select Leave Type
               </option>
-
-              <option value="1">
-                Casual Leave
-              </option>
-
-              <option value="2">
-                Sick Leave
-              </option>
-
-              <option value="3">
-                Paid Leave
-              </option>
+              {leaveTypes.map(type => (
+                <option key={type.id} value={type.id}>
+                  {type.leave_name} (Max {type.total_days} Days)
+                </option>
+              ))}
             </select>
 
           </div>

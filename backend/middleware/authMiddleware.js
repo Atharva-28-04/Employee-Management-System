@@ -1,7 +1,7 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 // 1. Check if the user is authenticated via JWT
-const verifyToken = (req, res, next) => {
+export const verifyToken = (req, res, next) => {
     // Look for the Authorization header (Format: Bearer <TOKEN>)
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -12,7 +12,7 @@ const verifyToken = (req, res, next) => {
 
     try {
         // Decode and verify token using your hidden JWT_SECRET key
-        const verified = jwt.verify(token, process.env.JWT_SECRET);
+        const verified = jwt.verify(token, process.env.JWT_SECRET || 'secret');
         req.user = verified; // Appends user data (id, email, role) to the request object
         next(); // Pass control to the next function in line
     } catch (err) {
@@ -21,7 +21,7 @@ const verifyToken = (req, res, next) => {
 };
 
 // 2. Role-Based Access Control (RBAC) Guard
-const authorizeRoles = (...allowedRoles) => {
+export const authorizeRoles = (...allowedRoles) => {
     return (req, res, next) => {
         // Check if the user's role is included in the permitted list
         if (!allowedRoles.includes(req.user.role)) {
@@ -29,6 +29,4 @@ const authorizeRoles = (...allowedRoles) => {
         }
         next();
     };
-};
-
-module.exports = { verifyToken, authorizeRoles };
+};

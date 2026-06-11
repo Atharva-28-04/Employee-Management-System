@@ -14,6 +14,7 @@ import {
   Briefcase,
   Wrench,
   UserCircle,
+  Clock,
 } from 'lucide-react';
 function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -69,6 +70,12 @@ useEffect(() => {
     name: 'My Profile',
     href: '/profile',
     icon: UserCircle
+  },
+
+  {
+    name: 'Attendance',
+    href: '/attendance',
+    icon: Clock
   },
 
   ...(user?.role === 'hr'

@@ -4,15 +4,21 @@ function Reports() {
 
     const headers = Object.keys(data[0]);
 
+    const escapeCSVValue = (val) => {
+      if (val === null || val === undefined) return '';
+      let str = typeof val === 'object' ? JSON.stringify(val) : String(val);
+      // Escape double quotes by doubling them
+      str = str.replace(/"/g, '""');
+      // Wrap in double quotes if it contains commas, double quotes, or newlines
+      if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+        str = `"${str}"`;
+      }
+      return str;
+    };
+
     const rows = data.map((row) =>
       headers
-        .map((header) => {
-          const value = row[header];
-
-          return typeof value === 'object'
-            ? JSON.stringify(value)
-            : value;
-        })
+        .map((header) => escapeCSVValue(row[header]))
         .join(',')
     );
 
@@ -39,6 +45,11 @@ function Reports() {
       if (type === 'Asset') {
         endpoint =
           'http://localhost:5000/api/v1/reports/assets';
+      }
+
+      if (type === 'Attendance') {
+        endpoint =
+          'http://localhost:5000/api/v1/reports/attendance';
       }
 
       const response = await fetch(endpoint);
@@ -95,7 +106,7 @@ function Reports() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
 
         <div className="bg-white rounded-2xl shadow p-6">
           <h2 className="text-xl font-bold mb-4">
@@ -149,6 +160,25 @@ function Reports() {
               downloadCSV('Asset')
             }
             className="bg-orange-600 text-white px-4 py-2 rounded-xl hover:bg-orange-700"
+          >
+            Export CSV
+          </button>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow p-6">
+          <h2 className="text-xl font-bold mb-4">
+            Attendance Report
+          </h2>
+
+          <p className="text-gray-500 mb-4">
+            Export team attendance logs.
+          </p>
+
+          <button
+            onClick={() =>
+              downloadCSV('Attendance')
+            }
+            className="bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700"
           >
             Export CSV
           </button>

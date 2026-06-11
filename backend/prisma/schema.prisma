@@ -49,7 +49,9 @@ model Employee {
   leaveBalances     LeaveBalance[]
   leaveApplications LeaveApplication[]
   assetAllocations AssetAllocation[]
+  attendance        Attendance[]
   @@map("Employee")
+  @@index([department_id])
 }
 
 // Table 4: Employee Images
@@ -61,6 +63,7 @@ model EmployeeDocument {
   profile Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   @@map("EmployeeDocument")
+  @@index([employee_id])
 }
 
 // Table 5: Skills
@@ -83,6 +86,8 @@ model EmployeeSkill {
   skill   Skill    @relation(fields: [skill_id], references: [id], onDelete: Cascade)
 
   @@map("EmployeeSkill")
+  @@index([employee_id])
+  @@index([skill_id])
 }
 
 // ==========================================
@@ -134,6 +139,9 @@ model LeaveApplication {
   approvals ApprovalHistory[]
 
   @@map("LeaveApplication")
+  @@index([employee_id])
+  @@index([status])
+  @@index([leave_type_id])
 }
 
 model ApprovalHistory {
@@ -149,6 +157,7 @@ model ApprovalHistory {
   leave LeaveApplication @relation(fields: [leave_id], references: [id], onDelete: Cascade)
 
   @@map("ApprovalHistory")
+  @@index([leave_id])
 }
 // ==========================================
 // ASSET MANAGEMENT
@@ -188,6 +197,9 @@ model AssetAllocation {
   employee        Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   @@map("AssetAllocation")
+  @@index([employee_id])
+  @@index([asset_id])
+  @@index([status])
 }
 
 model AssetHistory {
@@ -205,6 +217,7 @@ model AssetHistory {
   asset        Asset @relation(fields: [asset_id], references: [id], onDelete: Cascade)
 
   @@map("AssetHistory")
+  @@index([asset_id])
 }
 
 // ==========================================
@@ -224,6 +237,8 @@ model Notification {
   created_at  DateTime @default(now())
 
   @@map("Notification")
+  @@index([user_id])
+  @@index([is_read])
 }
 
 // ==========================================
@@ -246,4 +261,26 @@ model AuditLog {
   created_at    DateTime @default(now())
 
   @@map("AuditLog")
+  @@index([record_id])
+  @@index([table_name])
+}
+
+// ==========================================
+// ATTENDANCE MANAGEMENT SYSTEM
+// ==========================================
+
+model Attendance {
+  id          Int      @id @default(autoincrement())
+  employee_id Int
+  date        DateTime @db.Date
+  clock_in    DateTime?
+  clock_out   DateTime?
+  status      String   @default("Present") @db.VarChar(20)
+  total_hours Decimal? @db.Decimal(5, 2)
+  remarks     String?
+
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  @@unique([employee_id, date])
+  @@map("Attendance")
 }
