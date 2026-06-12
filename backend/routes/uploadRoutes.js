@@ -20,7 +20,7 @@ router.post('/', upload.array('documents', 5), async (req, res) => {
       await prisma.employeeDocument.create({
         data: {
           employee_id: parseInt(employeeId),
-          image_url: `http://localhost:5000/uploads/${file.filename}`
+          image_url: `/uploads/${file.filename}`
         }
       });
     }

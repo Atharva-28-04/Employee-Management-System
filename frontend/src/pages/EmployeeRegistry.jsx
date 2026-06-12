@@ -131,7 +131,7 @@ const EmployeeRegistry = () => {
       // Process supplemental document storage actions if additional files are picked [cite: 41, 63]
       if (files.length > 0) {
         const fileFormData = new FormData();
-        fileFormData.append('employeeId', id || data.employeeId);
+        fileFormData.append('employeeId', id || data.data?.id || data.employeeId);
         for (let i = 0; i < files.length; i++) {
           fileFormData.append('documents', files[i]);
         }

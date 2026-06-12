@@ -37,7 +37,8 @@ const employees = await prisma.employee.findMany({
       include: {
         skill: true
       }
-    }
+    },
+    images: true
   }
 });
 
@@ -63,7 +64,22 @@ const update = async (id, updatedData) => {
 const findById = async (id) => {
     return await prisma.employee.findUnique({
         where: { id: parseInt(id) },
-        include: { user: true, department: true }
+        include: {
+            user: {
+                select: {
+                    name: true,
+                    email: true,
+                    role: true
+                }
+            },
+            department: true,
+            skills: {
+                include: {
+                    skill: true
+                }
+            },
+            images: true
+        }
     });
 };
 

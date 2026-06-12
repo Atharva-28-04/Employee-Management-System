@@ -4,9 +4,17 @@ import App from './App.jsx';
 import './index.css';
 import { AuthProvider } from './context/AuthContext.jsx'; // 🌟 Make sure this is imported!
 
+// Define global API Base URL for fetch requests and image sources
+window.API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 // Global fetch interceptor to append JWT token automatically and handle token expiration/auth errors
 const originalFetch = window.fetch;
 window.fetch = async (url, options = {}) => {
+  let finalUrl = url;
+  if (typeof finalUrl === 'string' && finalUrl.startsWith('http://localhost:5000')) {
+    finalUrl = finalUrl.replace('http://localhost:5000', window.API_BASE_URL);
+  }
+
   const token = localStorage.getItem('ems_token');
   // Inject headers, retaining any existing headers
   const headers = { ...options.headers };
@@ -15,7 +23,7 @@ window.fetch = async (url, options = {}) => {
   }
   options.headers = headers;
   
-  const response = await originalFetch(url, options);
+  const response = await originalFetch(finalUrl, options);
   
   // If the server returns 401 Unauthorized or 403 Forbidden, the token is expired/invalid
   if (response.status === 401 || response.status === 403) {

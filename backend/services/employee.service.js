@@ -80,10 +80,6 @@ export const updateEmployee = async (id, updateData, file) => {
         department: departmentId ? { connect: { id: parseInt(departmentId) } } : undefined
     };
 
-    if (file) {
-        dataToUpdate.profileImage = `/uploads/${file.filename}`;
-    }
-
     return await employeeRepository.update(id, dataToUpdate);
 };
 

@@ -191,9 +191,9 @@ const totalPages = Math.max(
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                      <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center">
-  {employee.documents?.length > 0 ? (
+  {employee.images?.length > 0 ? (
     <img
-      src={`http://localhost:5000/${employee.documents[0].filePath}`}
+      src={employee.images[0].image_url.startsWith('http') ? employee.images[0].image_url.replace('http://localhost:5000', window.API_BASE_URL || 'http://localhost:5000') : `${window.API_BASE_URL || 'http://localhost:5000'}${employee.images[0].image_url}`}
       alt={getEmployeeName(employee)}
       className="w-full h-full object-cover"
     />
