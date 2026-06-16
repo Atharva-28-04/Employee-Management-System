@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  CheckCircle
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 
 function Signup() {
@@ -18,6 +19,7 @@ function Signup() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showColdStartWarning, setShowColdStartWarning] = useState(false);
 
   const navigate = useNavigate();
 
@@ -33,6 +35,12 @@ function Signup() {
 
     setError('');
     setLoading(true);
+    setShowColdStartWarning(false);
+
+    // If request takes more than 3 seconds, remind about the cold start
+    const timer = setTimeout(() => {
+      setShowColdStartWarning(true);
+    }, 3000);
 
     try {
       const response = await fetch(
@@ -65,15 +73,15 @@ function Signup() {
     } catch (err) {
       setError(err.message);
     } finally {
+      clearTimeout(timer);
       setLoading(false);
+      setShowColdStartWarning(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-
         <div className="mx-auto h-12 w-12 rounded-xl bg-indigo-600 flex items-center justify-center">
           <span className="text-white font-black text-xl">
             E
@@ -93,13 +101,10 @@ function Signup() {
             Sign In
           </Link>
         </p>
-
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
-
         <div className="bg-white py-8 px-6 shadow-xl rounded-2xl border">
-
           {error && (
             <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
               {error}
@@ -113,18 +118,27 @@ function Signup() {
             </div>
           )}
 
+          {showColdStartWarning && (
+            <div className="mb-4 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl text-sm flex items-start gap-3 animate-pulse">
+              <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-bold">Server is waking up...</p>
+                <p className="text-xs mt-1 leading-relaxed text-amber-700">
+                  Our API is hosted on Render's free tier. After a period of inactivity, the server spins down and can take up to 50 seconds to boot. Thank you for your patience!
+                </p>
+              </div>
+            </div>
+          )}
+
           <form
             className="space-y-4"
             onSubmit={handleSubmit}
           >
-
             <div className="grid grid-cols-2 gap-4">
-
               <div>
                 <label className="block text-sm font-semibold">
                   First Name
                 </label>
-
                 <input
                   type="text"
                   name="firstName"
@@ -139,7 +153,6 @@ function Signup() {
                 <label className="block text-sm font-semibold">
                   Last Name
                 </label>
-
                 <input
                   type="text"
                   name="lastName"
@@ -149,14 +162,12 @@ function Signup() {
                   className="mt-1 w-full border rounded-lg p-3"
                 />
               </div>
-
             </div>
 
             <div>
               <label className="block text-sm font-semibold">
                 Email
               </label>
-
               <input
                 type="email"
                 name="email"
@@ -171,7 +182,6 @@ function Signup() {
               <label className="block text-sm font-semibold">
                 Password
               </label>
-
               <input
                 type="password"
                 name="password"
@@ -186,7 +196,6 @@ function Signup() {
               <label className="block text-sm font-semibold">
                 Department
               </label>
-
               <select
                 name="department"
                 value={formData.department}
@@ -196,19 +205,15 @@ function Signup() {
                 <option value="">
                   Select Department
                 </option>
-
                 <option value="HR">
                   HR
                 </option>
-
                 <option value="IT">
                   IT
                 </option>
-
                 <option value="Finance">
                   Finance
                 </option>
-
                 <option value="Marketing">
                   Marketing
                 </option>
@@ -219,7 +224,6 @@ function Signup() {
               <label className="block text-sm font-semibold">
                 Designation
               </label>
-
               <select
                 name="designation"
                 value={formData.designation}
@@ -229,15 +233,12 @@ function Signup() {
                 <option value="">
                   Select Designation
                 </option>
-
                 <option value="Employee">
                   Employee
                 </option>
-
                 <option value="HR Executive">
                   HR Executive
                 </option>
-
                 <option value="HR Manager">
                   HR Manager
                 </option>
@@ -248,7 +249,6 @@ function Signup() {
               <label className="block text-sm font-semibold">
                 Role
               </label>
-
               <select
                 name="role"
                 value={formData.role}
@@ -258,7 +258,6 @@ function Signup() {
                 <option value="employee">
                   Employee
                 </option>
-
                 <option value="hr">
                   HR
                 </option>
@@ -274,13 +273,9 @@ function Signup() {
                 ? 'Creating Account...'
                 : 'Create Account'}
             </button>
-
           </form>
-
         </div>
-
       </div>
-
     </div>
   );
 }
